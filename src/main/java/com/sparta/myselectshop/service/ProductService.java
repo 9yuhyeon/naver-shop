@@ -32,7 +32,7 @@ public class ProductService {
         return new ProductResponseDto(savedProduct);
     }
 
-    // 관심상품 희망 최저가 업데이트 API
+    // 관심상품 희망 최저가 설정 API
     @Transactional
     public ProductResponseDto updateProduct(Long id, ProductMypriceRequestDto requestDto) {
         // 희망하는 최저가
@@ -48,13 +48,13 @@ public class ProductService {
             new IllegalArgumentException("해당 상품이 존재하지 않습니다.")
         );
         
-        // 해당 상품의 희망하는 최저가 금액 설정
+        // 해당 상품의 희망하는 최저가 금액 설정(myprice 업데이트)
         product.update(requestDto);
 
         return new ProductResponseDto(product);
     }
 
-    // 관심 상품의 최신 정보의 최저가로 업데이트 API(최저가 수정)
+    // 관심 상품의 현재 최저가 업데이트 API(lprice 업데이트)
     @Transactional
     public void updateBySearch(Long id, ItemDto itemDto) {
         Product product = productRepository.findById(id).orElseThrow(() ->
