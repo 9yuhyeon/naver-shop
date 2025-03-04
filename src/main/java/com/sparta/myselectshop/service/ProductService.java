@@ -4,11 +4,15 @@ import com.sparta.myselectshop.dto.ProductMypriceRequestDto;
 import com.sparta.myselectshop.dto.ProductRequestDto;
 import com.sparta.myselectshop.dto.ProductResponseDto;
 import com.sparta.myselectshop.entity.Product;
+import com.sparta.myselectshop.entity.User;
 import com.sparta.myselectshop.naver.dto.ItemDto;
 import com.sparta.myselectshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +24,9 @@ public class ProductService {
     public static final int MIN_MY_PRICE = 100;
 
     // 관심상품 등록 API
-    public ProductResponseDto createProduct(ProductRequestDto requestDto) {
+    public ProductResponseDto createProduct(ProductRequestDto requestDto, User user) {
         // RequestDTO -> Entity -> save
-        Product savedProduct = productRepository.save(new Product(requestDto));
+        Product savedProduct = productRepository.save(new Product(requestDto, user));
 
         // savedEntity -> ResponseDTO
         return new ProductResponseDto(savedProduct);
@@ -58,5 +62,16 @@ public class ProductService {
         );
 
         product.updateByItemDto(itemDto);
+    }
+    // 관심상품 조회 API
+    public List<ProductResponseDto> getProducts(User user) {
+        List<Product> productList = productRepository.findAllByUser(user);
+
+        List<ProductResponseDto> responseDtoList = new ArrayList<>();
+        for (Product product : productList) {
+            responseDtoList.add(new ProductResponseDto(product));
+        }
+
+        return responseDtoList;
     }
 }
