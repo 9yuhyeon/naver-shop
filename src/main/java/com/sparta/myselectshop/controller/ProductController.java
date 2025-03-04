@@ -37,4 +37,10 @@ public class ProductController {
     public List<ProductResponseDto> getProducts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return productService.getProducts(userDetails.getUser());
     }
+
+    // 모든 회원의 관심 상품 조회 API(관리자 권한)
+    @GetMapping("/admin/products")
+    public List<ProductResponseDto> getAllProducts() {
+        return productService.getAllProducts();
+    }
 }

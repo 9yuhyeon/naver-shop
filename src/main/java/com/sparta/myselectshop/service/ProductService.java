@@ -74,4 +74,17 @@ public class ProductService {
 
         return responseDtoList;
     }
+
+    // 전체 회원의 관심상품 조회 API(관리자 권한)
+    public List<ProductResponseDto> getAllProducts() {
+        List<Product> productList = productRepository.findAll();
+
+        List<ProductResponseDto> responseDtoList = new ArrayList<>();
+
+        for (Product product : productList) {
+            responseDtoList.add(new ProductResponseDto(product));
+        }
+
+        return responseDtoList;
+    }
 }
