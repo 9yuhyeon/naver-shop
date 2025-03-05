@@ -5,9 +5,14 @@ import com.sparta.myselectshop.dto.ProductRequestDto;
 import com.sparta.myselectshop.dto.ProductResponseDto;
 import com.sparta.myselectshop.entity.Product;
 import com.sparta.myselectshop.entity.User;
+import com.sparta.myselectshop.entity.UserRoleEnum;
 import com.sparta.myselectshop.naver.dto.ItemDto;
 import com.sparta.myselectshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,27 +69,26 @@ public class ProductService {
         product.updateByItemDto(itemDto);
     }
     // 관심상품 조회 API
-    public List<ProductResponseDto> getProducts(User user) {
-        List<Product> productList = productRepository.findAllByUser(user);
+    public Page<ProductResponseDto> getProducts(User user, int page, int size, String sortBy, boolean isAsc) {
+        // 상품 데이터 페이징 및 정렬
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy); // 정렬 방향, 정렬 기준
+        Pageable pageable = PageRequest.of(page, size, sort); // 요청 페이지, 항목 수, 정렬 방법(방향, 기준)
 
-        List<ProductResponseDto> responseDtoList = new ArrayList<>();
-        for (Product product : productList) {
-            responseDtoList.add(new ProductResponseDto(product));
+        // 권한에 따른 데이터 전달
+        UserRoleEnum userRoleEnum = user.getRole();
+
+        Page<Product> productList;
+
+        if (userRoleEnum == UserRoleEnum.USER) {
+            // User 권한일 경우 해당 User의 관심 상품만 페이징 및 정렬해서 반환
+            productList = productRepository.findAllByUser(user, pageable);
+        } else {
+            // Admin 권한일 경우 전체 User의 관심 상품 모두를 페이징 및 정렬해서 반환
+            productList = productRepository.findAll(pageable);
         }
 
-        return responseDtoList;
-    }
-
-    // 전체 회원의 관심상품 조회 API(관리자 권한)
-    public List<ProductResponseDto> getAllProducts() {
-        List<Product> productList = productRepository.findAll();
-
-        List<ProductResponseDto> responseDtoList = new ArrayList<>();
-
-        for (Product product : productList) {
-            responseDtoList.add(new ProductResponseDto(product));
-        }
-
-        return responseDtoList;
+        // Page<Product> 타입의 리스트를 map 을 사용하여 Page<ProductResponseDto> 타입으로 변환 후 반환
+        return productList.map(ProductResponseDto::new);
     }
 }
