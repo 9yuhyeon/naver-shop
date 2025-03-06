@@ -68,7 +68,11 @@ public class ProductService {
 
         product.updateByItemDto(itemDto);
     }
+
     // 관심상품 조회 API
+    // 관심 상품(Product)를 가져올 때 연관된 폴더(Folder) 리스트가 포함되어 있는데 폴더를 조회하는 시점을 필요에 따라 조회로 가정
+    // 1:N 관계 default FetchType은 Lazy(지연 로딩)이므로 트랜잭션 환경이 필요함(수정/삭제)가 아니기에 readOnly 옵션 적용
+    @Transactional(readOnly = true)
     public Page<ProductResponseDto> getProducts(User user, int page, int size, String sortBy, boolean isAsc) {
         // 상품 데이터 페이징 및 정렬
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;

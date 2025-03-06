@@ -1,7 +1,8 @@
 package com.sparta.myselectshop.service;
 
+import com.sparta.myselectshop.dto.FolderResponseDto;
 import com.sparta.myselectshop.entity.Folder;
-        import com.sparta.myselectshop.entity.User;
+import com.sparta.myselectshop.entity.User;
 import com.sparta.myselectshop.repository.FolderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class FolderService {
 
     private final FolderRepository folderRepository;
 
+    // 사용자 폴더 생성 API
     public void addFolders(List<String> folderNames, User user) {
         // 해당 User의 Folder 목록 중 인자로 전달한 names와 일치한 name을 가진 Folder만 가져옴
         List<Folder> existFolderList = folderRepository.findAllByUserAndNameIn(user, folderNames);
@@ -36,7 +38,20 @@ public class FolderService {
         folderRepository.saveAll(folderList);
     }
 
-    // 사용자가 전달한 Folder 이름과 일치한 리스트 중 name 값이 일치한 Folder가 있는지 검증
+    // 사용자 폴더 조회 API
+    public List<FolderResponseDto> getFolders(User user) {
+        List<Folder> folderList = folderRepository.findAllByUser(user);
+
+        List<FolderResponseDto> responseDtoList = new ArrayList<>();
+
+        for (Folder folder : folderList) {
+            responseDtoList.add(new FolderResponseDto(folder));
+        }
+
+        return responseDtoList;
+    }
+
+    // 폴더명 중복 검증 메서드
     private boolean isExsistFolderName(String folderName, List<Folder> existFolderList) {
         for (Folder folder : existFolderList) {
             if (folderName.equals(folder.getName())) {
