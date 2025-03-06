@@ -9,6 +9,7 @@ import com.sparta.myselectshop.repository.FolderRepository;
 import com.sparta.myselectshop.repository.ProductFolderRepository;
 import com.sparta.myselectshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.SortDirection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -97,7 +99,7 @@ public class ProductService {
         return productList.map(ProductResponseDto::new);
     }
 
-
+    // 관심상품 폴더 등록 API
     public void addFolder(Long productId, Long folderId, User user) {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new NullPointerException("해당 상품이 존재하지 않습니다.")
@@ -121,5 +123,19 @@ public class ProductService {
 
         // 상품, 폴더 중간 테이블에 저장
         productFolderRepository.save(new ProductFolder(product, folder));
+    }
+
+    // 폴더별 관심상품 목록 조회 API
+    public Page<ProductResponseDto> getProductsInFolder(Long folderId, int page, int size, String sortBy, boolean isAsc, User user) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // 해당 User의 특정 폴더에 담긴 관심 상품 조회 -> folder_id를 사용하여 중간 테이블에 있는 해당 folder_id와 연결된 product_id를 페이징 처리하여 가져옴
+        Page<Product> productList = productRepository.findAllByUserAndProductFolderList_FolderId(user, folderId, pageable);
+
+        Page<ProductResponseDto> responseDtoList = productList.map(ProductResponseDto::new);
+
+        return responseDtoList;
     }
 }
