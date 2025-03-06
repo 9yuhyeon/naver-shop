@@ -6,6 +6,9 @@ import com.sparta.myselectshop.naver.dto.ItemDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity // JPA가 관리하는 Entity 클래스로 지정
 @Getter // Lombok 라이브러리를 사용하여 쉽게 필드를 가져올 수 있는 Get 메서드 제공
@@ -36,6 +39,9 @@ public class Product extends TimeStamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductFolder> productFolderList = new ArrayList<>();
 
     public Product(ProductRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
