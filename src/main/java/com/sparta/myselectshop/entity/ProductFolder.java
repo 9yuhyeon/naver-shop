@@ -2,10 +2,10 @@ package com.sparta.myselectshop.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Table(name = "product_folder")
 @Entity
 public class ProductFolder {
@@ -20,4 +20,9 @@ public class ProductFolder {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
+
+    public ProductFolder(Product product, Folder folder) {
+        this.product = product;
+        this.folder = folder;
+    }
 }

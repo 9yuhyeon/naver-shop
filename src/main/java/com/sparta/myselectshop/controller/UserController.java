@@ -70,7 +70,7 @@ public class UserController {
         return new UserInfoDto(username, isAdmin);
     }
 
-    // 회원의 폴더 목록 조회 API
+    // 회원의 폴더 목록 조회 API(TemplateEngine을 통해 html에 적용)
     @GetMapping("/user-folder")
     public String getUserInfo(Model model, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         model.addAttribute("folders", folderService.getFolders(userDetails.getUser()));
